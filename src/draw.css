@@ -1,0 +1,79 @@
+.main-nav { display: flex; justify-content: center; gap: 6px; padding: 18px 20px 0; }
+.main-nav button { border: 1px solid var(--line); padding: 12px 24px; border-radius: 999px; background: transparent; color: var(--green); font-weight: 700; }
+.main-nav button.active { background: var(--green); color: white; border-color: var(--green); }
+#draw-view { padding: 34px 0 20px; }
+.draw-heading { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.draw-heading h1 { font-size: clamp(36px,5vw,58px); margin: 10px 0; letter-spacing: -2px; }
+.draw-heading h1 span { color: #cf9b3a; }
+.draw-heading p { color: #627468; margin: 0 0 14px; line-height: 1.6; }
+.draw-heading .button { width: auto; white-space: nowrap; }
+.draw-note { line-height: 1.6; color: #536557; margin: 12px 0; }
+.draw-note:empty { display: none; }
+.draw-setup { padding: 30px; max-width: 780px; margin: 24px auto; }
+.draw-setup h2 { margin-top: 0; }
+.draw-ranges { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; text-align: center; margin: 24px 0; }
+.draw-ranges span { display: grid; gap: 10px; border-radius: 12px; background: #f3f5ee; padding: 15px 5px; font-size: 13px; }
+.draw-ranges b { color: var(--green); font-size: 24px; }
+.draw-reuse { border: 1px solid #bccdbb; border-radius: 12px; background: #f3f7ef; padding: 18px; margin: 20px 0; }
+.draw-reuse p { margin-top: 0; line-height: 1.6; }
+.draw-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.draw-actions .button { width: auto; }
+.draw-actions .text-button { margin: 0; }
+.draw-summary { display: flex; justify-content: space-between; align-items: center; gap: 20px; border-top: 1px solid var(--line); padding-top: 24px; margin-top: 24px; }
+.draw-summary p { margin-bottom: 0; color: #627468; }
+.draw-summary .button { width: auto; }
+.draw-game-top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; margin: 26px 0 10px; }
+.draw-game-top strong { margin-right: auto; }
+#draw-progress-bar { width: 100%; height: 6px; margin: 0 0 20px; accent-color: var(--green); }
+.draw-board { display: grid; grid-template-columns: minmax(0,1fr) 230px; gap: 20px; }
+.draw-stage { padding: 28px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+#draw-current { width: 100%; min-height: 340px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px 0; }
+.draw-number { display: flex; flex-direction: column; align-items: center; color: var(--green); line-height: 1; }
+.draw-number span { font-size: clamp(40px,6vw,70px); color: #926c27; }
+.draw-number strong { font-family: Manrope, sans-serif; font-size: clamp(120px,17vw,210px); letter-spacing: -8px; font-variant-numeric: tabular-nums; }
+.draw-result-image { display: block; object-fit: contain; max-width: 100%; }
+#draw-current .draw-result-image { width: 100%; height: clamp(270px,43vh,510px); }
+.draw-image-name { font-size: 12px; overflow-wrap: anywhere; margin-top: 8px; color: #627468; }
+.draw-placeholder { color: #81907f; font-size: 18px; max-width: 260px; line-height: 1.7; }
+#draw-next { min-height: 60px; max-width: 420px; font-size: 20px; letter-spacing: 2px; }
+.draw-previous { padding: 24px 16px; align-self: start; text-align: center; }
+.draw-previous h2 { font-size: 14px; margin: 0 0 20px; }
+#draw-previous { display: flex; flex-direction: column; align-items: center; }
+#draw-previous .draw-result-image { height: 150px; width: 100%; }
+.draw-small-number { font-size: 26px; color: var(--green); font-variant-numeric: tabular-nums; }
+.draw-previous .draw-placeholder { font-size: 14px; }
+.draw-game-actions { margin: 22px 0; }
+.draw-game-actions .helper { flex-basis: 100%; }
+.draw-history { padding: 24px; }
+.draw-history h2 { margin: 0; font-size: 20px; }
+#draw-history { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill,minmax(112px,1fr)); gap: 12px; }
+#draw-history li { position: relative; border: 1px solid var(--line); background: #fafbf8; border-radius: 10px; padding: 14px 8px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+#draw-history .draw-small-number { font-size: 20px; }
+#draw-history .draw-result-image { height: 90px; width: 100%; }
+#draw-history li.latest { border: 2px solid var(--green); background: #edf4e9; }
+.draw-history-index { color: #627468; font-size: 12px; align-self: flex-start; }
+.draw-latest { color: var(--green); font-size: 11px; font-weight: 700; }
+.draw-confirm { width: 460px; padding: 28px; color: #253b30; }
+.draw-confirm p { text-align: left; line-height: 1.7; }
+.draw-confirm button { float: none; margin: 0; }
+.draw-confirm .draw-actions { justify-content: flex-end; margin-top: 24px; }
+#draw-view:fullscreen { background: #f7f8f2; padding: 24px 4vw; overflow-y: auto; width: 100%; }
+#draw-view:fullscreen .draw-heading h1 { font-size: 32px; margin: 4px 0; }
+#draw-view:fullscreen .draw-heading p, #draw-view:fullscreen .draw-heading .eyebrow { display: none; }
+#draw-view:fullscreen .draw-number strong { font-size: clamp(140px,27vh,360px); }
+#draw-view:fullscreen #draw-current .draw-result-image { height: 47vh; }
+@media (max-width: 650px) {
+  .draw-heading { align-items: flex-start; gap: 10px; flex-direction: column; }
+  .draw-setup { padding: 20px; }
+  .draw-summary { flex-direction: column; align-items: stretch; }
+  .draw-board { grid-template-columns: minmax(0,1fr); }
+  .draw-stage { padding: 22px 16px; }
+  #draw-current { min-height: 270px; }
+  .draw-previous { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 18px; }
+  .draw-previous h2 { margin: 0; }
+  #draw-previous .draw-result-image { width: 95px; height: 80px; }
+  #draw-previous .draw-image-name { max-width: 130px; }
+  .draw-actions .button { flex: 1; }
+  .draw-history { padding: 18px; }
+  .main-nav button { padding: 12px 20px; }
+}

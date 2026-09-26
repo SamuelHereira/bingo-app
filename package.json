@@ -13,6 +13,7 @@
     "fflate": "^0.8.2"
   },
   "devDependencies": {
+    "fake-indexeddb": "^6.2.5",
     "vite": "^7.1.0"
   }
 }

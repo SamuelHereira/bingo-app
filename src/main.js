@@ -1,4 +1,7 @@
 import "./style.css";
+import { loadImage } from "./image-files.js";
+import { mountDraw } from "./draw-ui.js";
+import { usedImageBank } from "./draw-engine.js";
 import {
   validateCount,
   generateCards,
@@ -30,7 +33,9 @@ const escape = (text) =>
   );
 document.querySelector("#app").innerHTML = `
   <header class="topbar"><a class="brand" href="./" aria-label="Bingo, inicio"><span class="brand-icon">▦</span> bingo<span class="brand-dot">.</span></a><span class="top-note">PEQUEÑOS CARTONES, GRANDES MOMENTOS</span><span class="local-badge"><span></span> 100% en tu navegador</span></header>
+  <nav class="main-nav" aria-label="Secciones principales"><button id="nav-generator" class="active" aria-current="page" aria-controls="generator-view">Generar cartones</button><button id="nav-draw" aria-controls="draw-view">Sorteo</button></nav>
   <main>
+    <div id="generator-view">
     <section class="intro"><div class="eyebrow">CREA · IMPRIME · JUEGA</div><h1>La próxima partida<br>empieza <em>contigo.</em></h1><p>Un bingo tan único como tu grupo. Personaliza tus cartones,<br class="desktop"> descárgalos y que empiece la diversión.</p><div class="intro-decoration" aria-hidden="true"><span class="ball ball-one">24</span><span class="spark">✳</span><span class="ball ball-two">7</span><span class="little-star">✦</span></div></section>
     <div class="workspace">
       <section class="configuration panel" aria-labelledby="config-title"><div class="section-heading"><span class="step">01</span><h2 id="config-title">Prepara tu bingo</h2></div>
@@ -44,8 +49,23 @@ document.querySelector("#app").innerHTML = `
       <section class="preview panel" aria-labelledby="preview-title"><div class="preview-heading"><div class="section-heading"><span class="step">02</span><h2 id="preview-title">Tus cartones</h2></div><span id="preview-badge" class="badge">VISTA PREVIA</span></div><div id="preview-area"></div><div id="result-controls" hidden><div class="navigation"><button id="previous" class="icon-button" aria-label="Cartón anterior">←</button><label for="card-select">Cartón <select id="card-select"></select><span id="card-total"></span></label><button id="next" class="icon-button" aria-label="Cartón siguiente">→</button></div><div class="downloads"><button id="download-one" class="button secondary">↓ Descargar PNG</button><button id="download-all" class="button primary">↓ Descargar todos · ZIP</button></div><button id="regenerate" class="text-button">⟳ Regenerar cartones</button></div><div id="empty-caption"><strong>Así se verá tu próxima partida</strong><p>Configura tu bingo y genera tus primeros cartones.</p></div></section>
     </div><div id="status" role="status" aria-live="polite"></div><div id="alert" role="alert" hidden></div>
     <section class="benefits"><div><span>✧</span><p><strong>Cada cartón, diferente</strong><small>Combinaciones únicas para jugar juntos.</small></p></div><div><span>↓</span><p><strong>Listos para imprimir</strong><small>Descarga tus cartones en alta resolución.</small></p></div><div><span>♡</span><p><strong>Sin cuentas, sin complicaciones</strong><small>Solo tú, tu grupo y una buena partida.</small></p></div></section>
+    </div><section id="draw-view" hidden aria-label="Sorteo"></section>
   </main><footer><span class="footer-brand">bingo.</span><span>Hecho para compartir buenos momentos.</span><span>De tu pantalla a la mesa ↗</span></footer>
   <dialog id="image-dialog"><button id="close-dialog" class="icon-button" aria-label="Cerrar imagen">×</button><img alt=""><p></p></dialog><input id="replace-input" type="file" accept="image/png,image/jpeg,image/webp" hidden>`;
+
+const drawing = mountDraw($("#draw-view"));
+function showSection(section) {
+  const draw = section === "draw";
+  $("#generator-view").hidden = draw;
+  $("#draw-view").hidden = !draw;
+  for (const [id, active] of [["#nav-generator", !draw], ["#nav-draw", draw]]) {
+    $(id).classList.toggle("active", active);
+    if(active) $(id).setAttribute("aria-current", "page"); else $(id).removeAttribute("aria-current");
+  }
+}
+$("#nav-generator").onclick = () => showSection("generator");
+$("#nav-draw").onclick = () => showSection("draw");
+drawing.ready.then(restored => { if(restored) showSection("draw"); });
 
 const demo = [
   3,
@@ -204,45 +224,6 @@ function renderBank() {
     )
     .join("");
 }
-async function loadImage(file) {
-  if (!["image/png", "image/jpeg", "image/webp"].includes(file.type))
-    throw new Error(
-      `${file.name}: el archivo no es una imagen PNG, JPG o WEBP válida.`,
-    );
-  if (file.size > 15 * 1024 * 1024)
-    throw new Error(`${file.name}: supera el límite de 15 MB.`);
-  const url = URL.createObjectURL(file);
-  try {
-    const img = new Image();
-    img.src = url;
-    await img.decode();
-    // Hash decoded pixels so renamed files and identical images in different formats are detected.
-    const canvas = document.createElement("canvas");
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
-    if (canvas.width * canvas.height > 25_000_000)
-      throw new Error("La imagen supera los 25 megapíxeles.");
-    const context = canvas.getContext("2d", { willReadFrequently: true });
-    context.drawImage(img, 0, 0);
-    const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
-    const hash = Array.from(
-      new Uint8Array(await crypto.subtle.digest("SHA-256", pixels)),
-    )
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-    return {
-      id: crypto.randomUUID(),
-      name: file.name,
-      url,
-      hash: `${canvas.width}x${canvas.height}:${hash}`,
-    };
-  } catch (error) {
-    URL.revokeObjectURL(url);
-    throw new Error(
-      `${file.name}: no se pudo leer la imagen. ${error.message}`,
-    );
-  }
-}
 async function upload(files, replacement = null) {
   if (state.busy || state.loading || !state.plan) return;
   state.loading = true;
@@ -296,6 +277,7 @@ async function generate() {
       { ...state, count: Number(state.count) },
       (n, total) => notify(`Generando cartones: ${n} / ${total}…`),
     );
+    if (state.type === "images") drawing.setGeneratedBank(usedImageBank(state.cards));
     state.current = 0;
     renderPreview();
     notify(`${state.cards.length} cartones generados correctamente.`);
